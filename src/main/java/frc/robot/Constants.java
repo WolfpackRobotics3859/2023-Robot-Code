@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-<<<<<<< Updated upstream
-=======
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +16,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import frc.lib.util.SwerveModuleConstants;
->>>>>>> Stashed changes
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -36,9 +33,6 @@ public final class Constants {
   }
 
   public static class SwerveConstants {
-<<<<<<< Updated upstream
-
-=======
     public static final int pigeonID = 42;
     public static final boolean invertGyro = false; // Always ensure Gyro is CCW+ CW-
     /* Drivetrain Constants */
@@ -157,7 +151,6 @@ public final class Constants {
         public static final SwerveModuleConstants constants = 
             new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
     }
->>>>>>> Stashed changes
   }
 
   public static class ThrowerConstants {
@@ -172,18 +165,12 @@ public final class Constants {
     public static int travelAcceleration = 4000;
     public static int travelProfileSmoothing = 2;
 
-<<<<<<< Updated upstream
-    public static int throwCruiseVelocity = 6000;
-    public static int throwAcceleration = 6000;
-    public static int throwProfileSmoothing = 2;
-=======
     public static int throwConeHighCruiseVelocity = 12500; //26500 1:50 3/4
     public static int throwConeHighAcceleration = 12500;
     public static int throwProfileSmoothing = 2;
 
     public static int throwConeLowCruiseVelocity = 7000;
     public static int throwConeLowAcceleration = 7000;
->>>>>>> Stashed changes
 
     //motion profile tolerance - how close the motor has to be to the target position to be considered "done" (measured in encoder ticks)
     public static int motionProfileTolerance = 15;
@@ -200,12 +187,6 @@ public final class Constants {
     public static double throwkF = 0.2;
 
     //Encoder position values
-<<<<<<< Updated upstream
-    public static int loadPosition = 15000;
-    public static int travelPosition = 25000;
-    public static int preShootPosition = 35000;
-    public static int throwPosition = 40000;
-=======
     public static int loadPosition = 4096;
     public static int preShootPosition = 1000;
     public static int purgePosition = 1000;
@@ -213,7 +194,6 @@ public final class Constants {
     public static int throwConeLowPosition = 3096;
 
     public static double centerThreshold = 0;
->>>>>>> Stashed changes
 
     
   }
@@ -223,9 +203,6 @@ public final class Constants {
   }
 
   public static class AutoConstants {
-<<<<<<< Updated upstream
-    
-=======
     
     
     public static final double kMaxSpeedMetersPerSecond = 0.5;
@@ -243,7 +220,6 @@ public final class Constants {
                 kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
         
         
->>>>>>> Stashed changes
   }
 
   public static class PhotonVisionConstants {

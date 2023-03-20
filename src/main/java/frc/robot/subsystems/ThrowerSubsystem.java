@@ -17,37 +17,21 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.ThrowerConstants;
 
 public class ThrowerSubsystem extends SubsystemBase {
   private WPI_TalonFX primaryMotor;
-<<<<<<< Updated upstream
-  //private WPI_TalonFX secondaryMotor;
-=======
-  private DigitalInput leftLimitSwitch;
-  private DigitalInput rightLimitSwitch;
-  private WPI_TalonFX secondaryMotor;
   private CANCoder throwerEncoder;
->>>>>>> Stashed changes
 
   /** Creates a new ThrowerSubsystem. */
   public ThrowerSubsystem() {
-    primaryMotor = new WPI_TalonFX(ThrowerConstants.primaryMotorID);
-<<<<<<< Updated upstream
-
-=======
-    secondaryMotor = new WPI_TalonFX(12);
     throwerEncoder = new CANCoder(5);
     throwerEncoder.configFactoryDefault();
->>>>>>> Stashed changes
     primaryMotor.configFactoryDefault();
-    primaryMotor.setNeutralMode(NeutralMode.Brake);
-    primaryMotor.setInverted(ThrowerConstants.primaryMotorInverted);
-    primaryMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, Constants.kTimeoutMs);
 		primaryMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, Constants.kTimeoutMs);
 		primaryMotor.configNominalOutputForward(0, Constants.kTimeoutMs);
 		primaryMotor.configNominalOutputReverse(0, Constants.kTimeoutMs);
-		primaryMotor.configPeakOutputForward(1, Constants.kTimeoutMs);
 		primaryMotor.configPeakOutputReverse(-1, Constants.kTimeoutMs);
 		primaryMotor.setSelectedSensorPosition(0, 0, Constants.kTimeoutMs);
     primaryMotor.configRemoteFeedbackFilter(throwerEncoder, 0);
@@ -69,9 +53,6 @@ public class ThrowerSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if(getLimitSwitch()) {
-      resetEncoders();
-    }
     SmartDashboard.putNumber("throwere", primaryMotor.getSelectedSensorPosition());
   }
   

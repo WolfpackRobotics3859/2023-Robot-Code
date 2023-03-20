@@ -20,7 +20,7 @@ import frc.robot.routines.ShootAutoPeriodRoutine;
  */
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
-
+  public static CTREConfigs ctreConfigs;
   private RobotContainer m_robotContainer;
 
   /**
@@ -31,6 +31,7 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
+    ctreConfigs = new CTREConfigs();
     m_robotContainer = new RobotContainer();
 
     //Tell networktables that the pi has a camera stream to tune into

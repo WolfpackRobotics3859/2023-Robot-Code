@@ -15,17 +15,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class HallwaySubsystem extends SubsystemBase {
-<<<<<<< Updated upstream
-  private WPI_TalonFX intake1fx = new WPI_TalonFX(9);
-  private WPI_TalonFX intake2fx = new WPI_TalonFX(10);
-  private WPI_TalonFX flipper1fx = new WPI_TalonFX(11);
-  private WPI_TalonFX flipper2fx = new WPI_TalonFX(12);
-=======
   private WPI_TalonFX kennyFlipperLeft = new WPI_TalonFX(20);
   private WPI_TalonFX kennyFlipperRight = new WPI_TalonFX(21);
   private WPI_TalonFX chrisCrossLeft = new WPI_TalonFX(22);
   private WPI_TalonFX chrisCrossRight = new WPI_TalonFX(20);
->>>>>>> Stashed changes
 
   private static SendableChooser<Boolean> cameraChoose = new SendableChooser<>();
 

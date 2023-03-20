@@ -40,7 +40,7 @@ public class ThrowCommand extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     //end beheivor handled by default command
-    throwerSubsystem.killMotors();
+    throwerSubsystem.manualMode(0);
   }
 
   // Returns true when the command should end.
