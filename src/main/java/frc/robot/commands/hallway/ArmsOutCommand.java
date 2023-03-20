@@ -5,43 +5,38 @@
 package frc.robot.commands.hallway;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.HallwaySubsystem;
-import frc.robot.subsystems.ThrowerSubsystem;
-import frc.robot.utils.GamePiece;
 
-public class IntakeCommand extends CommandBase {
+public class ArmsOutCommand extends CommandBase {
+  /** Creates a new ArmsOutCommand. */
   private HallwaySubsystem hallwaySubsystem;
-  private ThrowerSubsystem throwerSubsystem;
-  private GamePiece gamePiece; 
-
-  public IntakeCommand(HallwaySubsystem hallwaySubsystem, ThrowerSubsystem throwerSubsystem, GamePiece gamePiece) {
+  public ArmsOutCommand(HallwaySubsystem hallwaySubsystem) {
+    // Use addRequirements() here to declare subsystem dependencies.
     this.hallwaySubsystem = hallwaySubsystem;
-    this.throwerSubsystem = throwerSubsystem;
-    this.gamePiece = gamePiece;
-
-    addRequirements(throwerSubsystem);
+    addRequirements(hallwaySubsystem);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
-    throwerSubsystem.setLoadPosition();
+  public void initialize() 
+  {
+    hallwaySubsystem.armsOut();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     
+    
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    throwerSubsystem.killMotors();
-    
+    hallwaySubsystem.rest();
   }
 
-  // Returns true when the command should end.
   @Override
   public boolean isFinished() {
     return false;

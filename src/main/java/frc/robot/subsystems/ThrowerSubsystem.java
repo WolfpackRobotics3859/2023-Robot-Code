@@ -5,36 +5,74 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.SensorTerm;
+import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix.sensors.AbsoluteSensorRange;
+import com.ctre.phoenix.sensors.CANCoder;
 
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ThrowerConstants;
 
 public class ThrowerSubsystem extends SubsystemBase {
   private WPI_TalonFX primaryMotor;
+<<<<<<< Updated upstream
   //private WPI_TalonFX secondaryMotor;
+=======
+  private DigitalInput leftLimitSwitch;
+  private DigitalInput rightLimitSwitch;
+  private WPI_TalonFX secondaryMotor;
+  private CANCoder throwerEncoder;
+>>>>>>> Stashed changes
 
   /** Creates a new ThrowerSubsystem. */
   public ThrowerSubsystem() {
     primaryMotor = new WPI_TalonFX(ThrowerConstants.primaryMotorID);
+<<<<<<< Updated upstream
 
+=======
+    secondaryMotor = new WPI_TalonFX(12);
+    throwerEncoder = new CANCoder(5);
+    throwerEncoder.configFactoryDefault();
+>>>>>>> Stashed changes
     primaryMotor.configFactoryDefault();
     primaryMotor.setNeutralMode(NeutralMode.Brake);
     primaryMotor.setInverted(ThrowerConstants.primaryMotorInverted);
+    primaryMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, Constants.kTimeoutMs);
+		primaryMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, Constants.kTimeoutMs);
+		primaryMotor.configNominalOutputForward(0, Constants.kTimeoutMs);
+		primaryMotor.configNominalOutputReverse(0, Constants.kTimeoutMs);
+		primaryMotor.configPeakOutputForward(1, Constants.kTimeoutMs);
+		primaryMotor.configPeakOutputReverse(-1, Constants.kTimeoutMs);
+		primaryMotor.setSelectedSensorPosition(0, 0, Constants.kTimeoutMs);
+    primaryMotor.configRemoteFeedbackFilter(throwerEncoder, 0);
+    primaryMotor.configSelectedFeedbackSensor(FeedbackDevice.RemoteSensor0);
+    throwerEncoder.setPosition(0);
     resetEncoders();
 
     //secondaryMotor.configFactoryDefault()
     configurePIDSlots();
 
     configureShuffleboard();
+    primaryMotor.selectProfileSlot(0, 0);
+    
+    primaryMotor.configMotionAcceleration(ThrowerConstants.throwConeHighAcceleration);
+    primaryMotor.configMotionCruiseVelocity(ThrowerConstants.throwConeHighAcceleration);
+    primaryMotor.configMotionSCurveStrength(ThrowerConstants.throwProfileSmoothing);
 
   }
 
   @Override
   public void periodic() {
+    if(getLimitSwitch()) {
+      resetEncoders();
+    }
+    SmartDashboard.putNumber("throwere", primaryMotor.getSelectedSensorPosition());
   }
   
   //check to see if the motor is at the target position
@@ -44,15 +82,20 @@ public class ThrowerSubsystem extends SubsystemBase {
   public void resetEncoders() {
     primaryMotor.setSelectedSensorPosition(0);
   }
+  public void coastMode() {
+    primaryMotor.setNeutralMode(NeutralMode.Coast);
+  }
+
+  public void brakeMode() {
+    primaryMotor.setNeutralMode(NeutralMode.Brake);
+  }
+  public void manualMode(double percent) {
+    primaryMotor.set(ControlMode.PercentOutput, percent);
+  }
 
   public void setLoadPosition() {
     configureMovement();
     primaryMotor.set(ControlMode.MotionMagic, ThrowerConstants.loadPosition);
-  }
-
-  public void setTravelPosition() {
-    configureMovement();
-    primaryMotor.set(ControlMode.MotionMagic, ThrowerConstants.travelPosition);
   }
 
   public void setPreThrowPosition() {
@@ -60,22 +103,54 @@ public class ThrowerSubsystem extends SubsystemBase {
     primaryMotor.set(ControlMode.MotionMagic, ThrowerConstants.preShootPosition);
   }
 
-  public void setThrowPosition() {
-    configureThrowing();
-    primaryMotor.set(ControlMode.MotionMagic, ThrowerConstants.throwPosition);
+  public void setThrowConeHighPosition() {
+    configureThrowConeHigh();
+    primaryMotor.set(ControlMode.MotionMagic, ThrowerConstants.throwConeHighPosition);
+  }
+
+  public void setThrowConeLowPosition() {
+    configureThrowConeLow();
+    primaryMotor.set(ControlMode.MotionMagic, ThrowerConstants.throwConeLowPosition);
+  }
+
+  public void setThrowConePurgePosition() {
+    configureMovement();
+    primaryMotor.set(ControlMode.MotionMagic, ThrowerConstants.purgePosition);
+  }
+
+  public void zeroPosition() {
+    configureMovement(); 
+    primaryMotor.set(ControlMode.MotionMagic, 0);
+  }
+  public void homing() {
+    configureMovement();
+    primaryMotor.set(ControlMode.MotionMagic, -1400);
+   }
+  public void manualSpeed(double speed) {
+    primaryMotor.set(ControlMode.PercentOutput, speed);
   }
 
   //Configures motor's pid and motion magic to be more stable for travel
   public void configureMovement() {
+    primaryMotor.selectProfileSlot(1, 0);
     primaryMotor.configMotionAcceleration(ThrowerConstants.travelAcceleration);
     primaryMotor.configMotionCruiseVelocity(ThrowerConstants.travelCruiseVelocity);
     primaryMotor.configMotionSCurveStrength(ThrowerConstants.travelProfileSmoothing);
   }
 
   //configures motor's pid and motion magic to be more powerful for launching
-  public void configureThrowing() {
-    primaryMotor.configMotionAcceleration(ThrowerConstants.throwAcceleration);
-    primaryMotor.configMotionCruiseVelocity(ThrowerConstants.throwCruiseVelocity);
+  public void configureThrowConeHigh() {
+    primaryMotor.selectProfileSlot(0, 0);
+    
+    primaryMotor.configMotionAcceleration(ThrowerConstants.throwConeHighAcceleration);
+    primaryMotor.configMotionCruiseVelocity(ThrowerConstants.throwConeHighAcceleration);
+    primaryMotor.configMotionSCurveStrength(ThrowerConstants.throwProfileSmoothing);
+  }
+
+  public void configureThrowConeLow() {
+    primaryMotor.selectProfileSlot(0, 0);
+    primaryMotor.configMotionAcceleration(ThrowerConstants.throwConeLowAcceleration);
+    primaryMotor.configMotionCruiseVelocity(ThrowerConstants.throwConeLowCruiseVelocity);
     primaryMotor.configMotionSCurveStrength(ThrowerConstants.throwProfileSmoothing);
   }
 
@@ -102,5 +177,4 @@ public class ThrowerSubsystem extends SubsystemBase {
     tab.addNumber("Primary Motor Error", primaryMotor::getClosedLoopError);
     tab.add(this);
   }
-
 }

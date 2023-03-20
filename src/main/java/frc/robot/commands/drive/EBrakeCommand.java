@@ -4,6 +4,11 @@
 
 package frc.robot.commands.drive;
 
+<<<<<<< Updated upstream
+=======
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
+>>>>>>> Stashed changes
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class EBrakeCommand extends CommandBase {
@@ -18,7 +23,20 @@ public class EBrakeCommand extends CommandBase {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
+<<<<<<< Updated upstream
   public void execute() {}
+=======
+  public void execute() {
+    //TODO: set swerve module states to all inner
+    SwerveModuleState[] innerStates = new SwerveModuleState[4];
+    innerStates[0] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
+    innerStates[1] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
+    innerStates[2] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
+    innerStates[3] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
+    
+    driveSubsystem.setModuleStates(innerStates);
+  }
+>>>>>>> Stashed changes
 
   // Called once the command ends or is interrupted.
   @Override

@@ -6,11 +6,15 @@ package frc.robot.commands.thrower;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.ThrowerSubsystem;
+import frc.robot.utils.Position;
 
 public class ThrowCommand extends CommandBase {
   ThrowerSubsystem throwerSubsystem;
-  public ThrowCommand(ThrowerSubsystem _throwerSubsystem) {
+  private Position position;
+
+  public ThrowCommand(ThrowerSubsystem _throwerSubsystem, Position position) {
     throwerSubsystem = _throwerSubsystem;
+    this.position = position;
     
     addRequirements(throwerSubsystem);
   }
@@ -18,7 +22,14 @@ public class ThrowCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    throwerSubsystem.setThrowPosition();
+    if(position.equals(Position.THROW_CONE_HIGH)) {
+      throwerSubsystem.setThrowConeHighPosition();
+    }
+    if(position.equals(Position.THROW_CONE_LOW)) {
+      throwerSubsystem.setThrowConeLowPosition();
+    }
+    
+    
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -29,11 +40,13 @@ public class ThrowCommand extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     //end beheivor handled by default command
+    throwerSubsystem.killMotors();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return throwerSubsystem.motionProfileFinished();
+    //return throwerSubsystem.motionProfileFinished();
+    return false;
   }
 }
