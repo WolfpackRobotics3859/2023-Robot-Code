@@ -36,8 +36,8 @@ public final class Constants {
     public static final int pigeonID = 42;
     public static final boolean invertGyro = false; // Always ensure Gyro is CCW+ CW-
     /* Drivetrain Constants */
-    public static final double trackWidth = Units.inchesToMeters(20.35); //TODO: This must be tuned to specific robot
-    public static final double wheelBase = Units.inchesToMeters(15.25); //TODO: This must be tuned to specific robot
+    public static final double trackWidth = Units.inchesToMeters(20.35); //TODO: This must be tuned to specific robot //20.35
+    public static final double wheelBase = Units.inchesToMeters(20.35); //TODO: This must be tuned to specific robot //15.25
     public static final double wheelCircumference = Units.inchesToMeters(4.0 * Math.PI);
 
     /* Swerve Kinematics 
@@ -161,37 +161,46 @@ public final class Constants {
     public static final boolean secondaryMotorInverted = false;
 
     //motion magic values 
-    public static int travelCruiseVelocity = 4000;
-    public static int travelAcceleration = 4000;
+    public static int travelCruiseVelocity = 1500;
+    public static int travelAcceleration = 1500;
     public static int travelProfileSmoothing = 2;
 
-    public static int throwConeHighCruiseVelocity = 12500; //26500 1:50 3/4
-    public static int throwConeHighAcceleration = 12500;
+    public static int throwConeHighCruiseVelocity = 1200; //cube shenanoigabs
+    public static int throwConeHighAcceleration = 2350;
     public static int throwProfileSmoothing = 2;
 
-    public static int throwConeLowCruiseVelocity = 7000;
-    public static int throwConeLowAcceleration = 7000;
+    public static int throwConeLowCruiseVelocity = 400; //DO NOT CHANGE FOR THE LOVE OF GOD
+    public static int throwConeLowAcceleration = 2050; 
+
+    public static int throwCubeLowCruiseVelocity = 520; //old 4/1 11:35 420 and 1100
+    public static int throwCubeLowAcceleration = 1100; 
+    
+    public static int throwCubeHighCruiseVelocity = 1200; 
+    public static int throwCubeHighAcceleration = 2350; 
 
     //motion profile tolerance - how close the motor has to be to the target position to be considered "done" (measured in encoder ticks)
     public static int motionProfileTolerance = 15;
 
     //pid values
-    public static double travelkP = 0.2;
+    public static double travelkP = 1.8; //1.2
     public static int travelkI = 0;
     public static int travelkD = 0;
-    public static double travelkF = 0.2;
+    public static double travelkF = 0;
 
-    public static double throwkP = 0.2;
+    public static double throwkP = 1.8; //0.2
     public static int throwkI = 0;
     public static int throwkD = 0;
-    public static double throwkF = 0.2;
+    public static double throwkF = 0; //0.2
 
     //Encoder position values
-    public static int loadPosition = 4096;
-    public static int preShootPosition = 1000;
-    public static int purgePosition = 1000;
-    public static int throwConeHighPosition = 3096; //7500
-    public static int throwConeLowPosition = 3096;
+    public static int loadPosition = 785;
+    public static int preShootPosition = 900;
+    public static int purgePosition = 200;
+    public static int throwConeHighPosition = 900; //7500
+    public static int throwConeLowPosition = 900; //3900
+
+    public static int throwCubeHighPosition = 950; //7500
+    public static int throwCubeLowPosition = 820;
 
     public static double centerThreshold = 0;
 

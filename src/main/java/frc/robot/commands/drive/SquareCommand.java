@@ -47,7 +47,7 @@ public class SquareCommand extends CommandBase {
   @Override
   public void execute() {
     currentPose = drive.getPose();
-    omega = angController.calculate(currentPose.getRotation().getRadians());
+    omega = angController.calculate(drive.getYaw().getRadians());
     SmartDashboard.putNumber("Omega", omega);
     drive.drive(new Translation2d(0, 0), omega, true, false);
   }

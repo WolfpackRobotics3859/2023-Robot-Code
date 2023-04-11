@@ -22,21 +22,32 @@ import frc.robot.Constants.ThrowerConstants;
 
 public class ThrowerSubsystem extends SubsystemBase {
   private WPI_TalonFX primaryMotor;
+  private WPI_TalonFX secondaryMotor;
   private CANCoder throwerEncoder;
 
   /** Creates a new ThrowerSubsystem. */
   public ThrowerSubsystem() {
     throwerEncoder = new CANCoder(5);
     throwerEncoder.configFactoryDefault();
+    primaryMotor = new WPI_TalonFX(11);
+    secondaryMotor = new WPI_TalonFX(12);
+    secondaryMotor.configFactoryDefault();
+    secondaryMotor.setInverted(true);
+    secondaryMotor.follow(primaryMotor);
     primaryMotor.configFactoryDefault();
-		primaryMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, Constants.kTimeoutMs);
+    primaryMotor.setInverted(false);
+    primaryMotor.configVoltageCompSaturation(10, Constants.kTimeoutMs);
+    primaryMotor.enableVoltageCompensation(true);
+		primaryMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, Constants.kTimeoutMs); //changed to 10... 11:48 3/31
 		primaryMotor.configNominalOutputForward(0, Constants.kTimeoutMs);
 		primaryMotor.configNominalOutputReverse(0, Constants.kTimeoutMs);
 		primaryMotor.configPeakOutputReverse(-1, Constants.kTimeoutMs);
 		primaryMotor.setSelectedSensorPosition(0, 0, Constants.kTimeoutMs);
     primaryMotor.configRemoteFeedbackFilter(throwerEncoder, 0);
     primaryMotor.configSelectedFeedbackSensor(FeedbackDevice.RemoteSensor0);
+    primaryMotor.setSensorPhase(true);
     throwerEncoder.setPosition(0);
+    primaryMotor.configNeutralDeadband(0.01);
     resetEncoders();
 
     //secondaryMotor.configFactoryDefault()
@@ -62,6 +73,7 @@ public class ThrowerSubsystem extends SubsystemBase {
   }
   public void resetEncoders() {
     primaryMotor.setSelectedSensorPosition(0);
+    throwerEncoder.setPosition(0);
   }
   public void coastMode() {
     primaryMotor.setNeutralMode(NeutralMode.Coast);
@@ -94,8 +106,26 @@ public class ThrowerSubsystem extends SubsystemBase {
     primaryMotor.set(ControlMode.MotionMagic, ThrowerConstants.throwConeLowPosition);
   }
 
+  public void setThrowCubeHighPosition() {
+    primaryMotor.selectProfileSlot(0, 0);
+    
+    primaryMotor.configMotionAcceleration(ThrowerConstants.throwCubeHighAcceleration);
+    primaryMotor.configMotionCruiseVelocity(ThrowerConstants.throwCubeHighAcceleration);
+    primaryMotor.configMotionSCurveStrength(2);
+
+    primaryMotor.set(ControlMode.MotionMagic, ThrowerConstants.throwCubeHighPosition);
+  }
+
+  public void setThrowCubeLowPosition() {
+    primaryMotor.selectProfileSlot(0, 0);
+    primaryMotor.configMotionAcceleration(ThrowerConstants.throwCubeLowAcceleration);
+    primaryMotor.configMotionCruiseVelocity(ThrowerConstants.throwCubeLowCruiseVelocity);
+    primaryMotor.configMotionSCurveStrength(4);
+    primaryMotor.set(ControlMode.MotionMagic, ThrowerConstants.throwCubeLowPosition);
+  }
+
   public void setThrowConePurgePosition() {
-    configureMovement();
+    configureThrowConeLow();
     primaryMotor.set(ControlMode.MotionMagic, ThrowerConstants.purgePosition);
   }
 

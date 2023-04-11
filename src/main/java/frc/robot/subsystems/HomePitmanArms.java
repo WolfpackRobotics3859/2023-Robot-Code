@@ -2,44 +2,44 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.thrower;
+package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.HallwaySubsystem;
-import frc.robot.subsystems.ThrowerSubsystem;
 
-public class HomingCommand extends CommandBase {
-  /** Creates a new HomingCommand. */
-  private ThrowerSubsystem throwerSubsystem;
-  public HomingCommand(ThrowerSubsystem throwerSubsystem) {
+public class HomePitmanArms extends CommandBase {
+  private WPI_TalonFX primaryMotor;
+  private HallwaySubsystem hallwaySubsystem;
+  /** Creates a new HomePitmanArms. */
+  public HomePitmanArms(HallwaySubsystem hallwaySubsystem) {
+    this.hallwaySubsystem = hallwaySubsystem;
     // Use addRequirements() here to declare subsystem dependencies.
-    this.throwerSubsystem = throwerSubsystem;
-    addRequirements(throwerSubsystem);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    //throwerSubsystem.manualSpeed(-0.05);
+    
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    throwerSubsystem.coastMode();
-    throwerSubsystem.zeroPosition();
+    hallwaySubsystem.armsIn();
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    throwerSubsystem.coastMode();
-    throwerSubsystem.manualMode(0);
+    hallwaySubsystem.rest();
+    hallwaySubsystem.zero();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return hallwaySubsystem.limitSwitch();
   }
 }

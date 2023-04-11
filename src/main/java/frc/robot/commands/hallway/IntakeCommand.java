@@ -25,6 +25,7 @@ public class IntakeCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    hallwaySubsystem.setArmState(false);
     throwerSubsystem.setLoadPosition();
   }
 
@@ -38,7 +39,7 @@ public class IntakeCommand extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     throwerSubsystem.manualMode(0);
-    
+    hallwaySubsystem.setArmState(true);
   }
 
   // Returns true when the command should end.
