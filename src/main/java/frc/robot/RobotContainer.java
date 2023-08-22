@@ -5,6 +5,7 @@
 package frc.robot;
 
 
+import frc.robot.commands.auto.DriveBackCommand;
 import frc.robot.commands.drive.DriveCommand;
 import frc.robot.commands.drive.EBrakeCommand;
 import frc.robot.commands.drive.LimelightCenterCommand;
@@ -88,12 +89,26 @@ public class RobotContainer {
   private final JoystickButton robotCentric = new JoystickButton(primaryController.getHID(), XboxController.Button.kRightBumper.value);
 
   //auto chooser
-  private final Command m_simpleAuto = new SequentialCommandGroup(new ResetGyroCommand(driveSubsystem).withTimeout(0.01), new ResetEncoderCommand(throwerSubsystem).withTimeout(0.01), new HomePitmanArms(hallwaySubsystem).withTimeout(1.5), new InstantCommand(() -> {hallwaySubsystem.armsOut();}));
-  private final Command m_complexAuto = new SequentialCommandGroup(new ResetGyroCommand(driveSubsystem).withTimeout(0.01), new ResetEncoderCommand(throwerSubsystem).withTimeout(0.01), new HomePitmanArms(hallwaySubsystem).withTimeout(1.5), new InstantCommand(() -> {hallwaySubsystem.armsOut();}), new ThrowCommand(throwerSubsystem, Position.THROW_CUBE_HIGH).withTimeout(2.5), new WaitCommand(1), new ThrowBalanceAuto(driveSubsystem, throwerSubsystem));
+  private final Command bareBones = new SequentialCommandGroup(new ResetGyroCommand(driveSubsystem).withTimeout(0.01), new ResetEncoderCommand(throwerSubsystem).withTimeout(0.01), new HomePitmanArms(hallwaySubsystem).withTimeout(1.5), new InstantCommand(() -> {hallwaySubsystem.armsOut();}));
+  private final Command fullAuto = new SequentialCommandGroup(new ResetGyroCommand(driveSubsystem).withTimeout(0.01), new ResetEncoderCommand(throwerSubsystem).withTimeout(0.01), new HomePitmanArms(hallwaySubsystem).withTimeout(1.5), new InstantCommand(() -> {hallwaySubsystem.armsOut();}), new ThrowCommand(throwerSubsystem, Position.THROW_CUBE_HIGH).withTimeout(2.5), new WaitCommand(1), new ThrowBalanceAuto(driveSubsystem, throwerSubsystem));
+  private final Command shootAndDriveBack = new SequentialCommandGroup(new ResetGyroCommand(driveSubsystem).withTimeout(0.01), new ResetEncoderCommand(throwerSubsystem).withTimeout(0.01), new HomePitmanArms(hallwaySubsystem).withTimeout(1.5), new InstantCommand(() -> {hallwaySubsystem.armsOut();}), new ThrowCommand(throwerSubsystem, Position.THROW_CUBE_HIGH).withTimeout(2.5), new WaitCommand(1), new DriveBackCommand(driveSubsystem, true).withTimeout(3.5));
+  private final Command onlyShoot = new SequentialCommandGroup(new ResetGyroCommand(driveSubsystem).withTimeout(0.01), new ResetEncoderCommand(throwerSubsystem).withTimeout(0.01), new HomePitmanArms(hallwaySubsystem).withTimeout(1.5), new InstantCommand(() -> {hallwaySubsystem.armsOut();}), new ThrowCommand(throwerSubsystem, Position.THROW_CUBE_HIGH).withTimeout(2.5));
+  
+  private final Command fullAutoDump = new SequentialCommandGroup(new ResetGyroCommand(driveSubsystem).withTimeout(0.01), new ResetEncoderCommand(throwerSubsystem).withTimeout(0.01), new HomePitmanArms(hallwaySubsystem).withTimeout(1.5), new InstantCommand(() -> {hallwaySubsystem.armsOut();}), new ThrowCommand(throwerSubsystem, Position.PURGE).withTimeout(2.5), new WaitCommand(1), new ThrowBalanceAuto(driveSubsystem, throwerSubsystem));
+  private final Command shootAndDriveBackDump = new SequentialCommandGroup(new ResetGyroCommand(driveSubsystem).withTimeout(0.01), new ResetEncoderCommand(throwerSubsystem).withTimeout(0.01), new HomePitmanArms(hallwaySubsystem).withTimeout(1.5), new InstantCommand(() -> {hallwaySubsystem.armsOut();}), new ThrowCommand(throwerSubsystem, Position.PURGE).withTimeout(2.5), new WaitCommand(1), new DriveBackCommand(driveSubsystem, true).withTimeout(3.5));
+  private final Command onlyShootDump = new SequentialCommandGroup(new ResetGyroCommand(driveSubsystem).withTimeout(0.01), new ResetEncoderCommand(throwerSubsystem).withTimeout(0.01), new HomePitmanArms(hallwaySubsystem).withTimeout(1.5), new InstantCommand(() -> {hallwaySubsystem.armsOut();}), new ThrowCommand(throwerSubsystem, Position.PURGE).withTimeout(2.5));
+  
+
   SendableChooser<Command> m_chooser = new SendableChooser<>();
   public RobotContainer() {
-    m_chooser.setDefaultOption("Simple Auto", m_simpleAuto);
-    m_chooser.addOption("Complex Auto", m_complexAuto);
+    m_chooser.setDefaultOption("bare bones", bareBones); 
+    m_chooser.addOption("full auto", fullAuto);
+    m_chooser.addOption("shoot + drive back", shootAndDriveBack);
+    m_chooser.addOption("only shoot", onlyShoot);
+
+    m_chooser.addOption("full auto dump", fullAutoDump);
+    m_chooser.addOption("shoot + drive back dump", shootAndDriveBackDump);
+    m_chooser.addOption("only shoot dump", onlyShootDump);
     SmartDashboard.putData(m_chooser);
     // Set default commands for subsystems
     driveSubsystem.setDefaultCommand(
@@ -115,12 +130,12 @@ public class RobotContainer {
 
     primaryController.leftBumper().whileTrue(new DriveCommand(
         driveSubsystem, 
-        () -> -primaryController.getRawAxis(translationAxis), 
-        () -> -primaryController.getRawAxis(strafeAxis),
+        () -> primaryController.getRawAxis(translationAxis), 
+        () -> primaryController.getRawAxis(strafeAxis),
         () -> -primaryController.getRawAxis(rotationAxis), 
         () -> false
     ));
-    //throwerSubsystem.setDefaultCommand(new HomingCommand(throwerSubsystem));
+    throwerSubsystem.setDefaultCommand(new HomingCommand(throwerSubsystem));
     //primaryController.b().whileTrue(new EBrakeCommand(driveSubsystem));
   //shoot right trig, robot right bump, homing kailey left trigger
     primaryController.x().whileTrue(new LimelightCenterCommand(driveSubsystem));

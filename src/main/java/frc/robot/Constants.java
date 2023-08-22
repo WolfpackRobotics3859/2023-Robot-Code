@@ -166,11 +166,17 @@ public final class Constants {
     public static int travelProfileSmoothing = 2;
 
     public static int throwConeHighCruiseVelocity = 1200; //cube shenanoigabs
-    public static int throwConeHighAcceleration = 0; //2350
+    public static int throwConeHighAcceleration = 2350;
     public static int throwProfileSmoothing = 2;
 
     public static int throwConeLowCruiseVelocity = 400; //DO NOT CHANGE FOR THE LOVE OF GOD
     public static int throwConeLowAcceleration = 2050; 
+
+    public static int throwCubeLowCruiseVelocity = 520; //old 4/1 11:35 420 and 1100
+    public static int throwCubeLowAcceleration = 1100; 
+    
+    public static int throwCubeHighCruiseVelocity = 1200; 
+    public static int throwCubeHighAcceleration = 2350; 
 
     //motion profile tolerance - how close the motor has to be to the target position to be considered "done" (measured in encoder ticks)
     public static int motionProfileTolerance = 15;
@@ -182,14 +188,9 @@ public final class Constants {
     public static double travelkF = 0;
 
     public static double throwkP = 1.8; //0.2
-    public static double throwkI = 0;
+    public static int throwkI = 0;
     public static int throwkD = 0;
     public static double throwkF = 0; //0.2
-
-    public static double throwVkP = .4; //0.2
-    public static double throwVkI = 0.012;
-    public static int throwVkD = 0;
-    public static double throwVkF = 0; //0.2
 
     //Encoder position values
     public static int loadPosition = 785;
@@ -199,7 +200,7 @@ public final class Constants {
     public static int throwConeLowPosition = 900; //3900
 
     public static int throwCubeHighPosition = 950; //7500
-    public static int throwCubeLowPosition = 850;
+    public static int throwCubeLowPosition = 820;
 
     public static double centerThreshold = 0;
 
