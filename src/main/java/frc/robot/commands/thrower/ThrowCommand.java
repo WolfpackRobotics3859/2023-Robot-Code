@@ -28,6 +28,15 @@ public class ThrowCommand extends CommandBase {
     if(position.equals(Position.THROW_CONE_LOW)) {
       throwerSubsystem.setThrowConeLowPosition();
     }
+    if(position.equals(Position.THROW_CUBE_HIGH)) {
+      throwerSubsystem.setThrowCubeHighPosition();
+    }
+    if(position.equals(Position.THROW_CUBE_LOW)) {
+      throwerSubsystem.setThrowCubeLowPosition();
+    }
+    if(position.equals(Position.PURGE)) {
+      throwerSubsystem.setThrowConePurgePosition();
+    }
     
     
   }
@@ -47,6 +56,6 @@ public class ThrowCommand extends CommandBase {
   @Override
   public boolean isFinished() {
     //return throwerSubsystem.motionProfileFinished();
-    return false;
+    return throwerSubsystem.inRange();
   }
 }

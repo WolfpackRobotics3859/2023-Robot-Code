@@ -9,5 +9,6 @@ public enum Position {
     THROW_CONE_HIGH,
     THROW_CONE_LOW,
     THROW_CUBE_HIGH,
-    THROW_CUBE_LOW
+    THROW_CUBE_LOW,
+    PURGE
 }

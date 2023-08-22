@@ -4,7 +4,10 @@
 
 package frc.robot.subsystems;
 
+import java.util.ResourceBundle.Control;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SensorTerm;
@@ -12,6 +15,7 @@ import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
 
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -22,13 +26,22 @@ import frc.robot.Constants.ThrowerConstants;
 
 public class ThrowerSubsystem extends SubsystemBase {
   private WPI_TalonFX primaryMotor;
+  private WPI_TalonFX secondaryMotor;
   private CANCoder throwerEncoder;
 
   /** Creates a new ThrowerSubsystem. */
   public ThrowerSubsystem() {
     throwerEncoder = new CANCoder(5);
     throwerEncoder.configFactoryDefault();
+    primaryMotor = new WPI_TalonFX(11);
+    secondaryMotor = new WPI_TalonFX(12);
+    secondaryMotor.configFactoryDefault();
+    secondaryMotor.setInverted(true);
+    secondaryMotor.follow(primaryMotor);
     primaryMotor.configFactoryDefault();
+    primaryMotor.setInverted(false);
+    primaryMotor.configVoltageCompSaturation(10, Constants.kTimeoutMs);
+    primaryMotor.enableVoltageCompensation(true);
 		primaryMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, Constants.kTimeoutMs);
 		primaryMotor.configNominalOutputForward(0, Constants.kTimeoutMs);
 		primaryMotor.configNominalOutputReverse(0, Constants.kTimeoutMs);
@@ -36,7 +49,12 @@ public class ThrowerSubsystem extends SubsystemBase {
 		primaryMotor.setSelectedSensorPosition(0, 0, Constants.kTimeoutMs);
     primaryMotor.configRemoteFeedbackFilter(throwerEncoder, 0);
     primaryMotor.configSelectedFeedbackSensor(FeedbackDevice.RemoteSensor0);
+    primaryMotor.setSensorPhase(true);
     throwerEncoder.setPosition(0);
+    primaryMotor.configNeutralDeadband(0.01);
+    //primaryMotor.configForwardSoftLimitThreshold(800);
+    //primaryMotor.configForwardSoftLimitEnable(true, Constants.kTimeoutMs);
+    primaryMotor.configVelocityMeasurementPeriod(SensorVelocityMeasPeriod.Period_1Ms, Constants.kTimeoutMs);
     resetEncoders();
 
     //secondaryMotor.configFactoryDefault()
@@ -62,6 +80,7 @@ public class ThrowerSubsystem extends SubsystemBase {
   }
   public void resetEncoders() {
     primaryMotor.setSelectedSensorPosition(0);
+    throwerEncoder.setPosition(0);
   }
   public void coastMode() {
     primaryMotor.setNeutralMode(NeutralMode.Coast);
@@ -91,11 +110,22 @@ public class ThrowerSubsystem extends SubsystemBase {
 
   public void setThrowConeLowPosition() {
     configureThrowConeLow();
-    primaryMotor.set(ControlMode.MotionMagic, ThrowerConstants.throwConeLowPosition);
+    //primaryMotor.set(ControlMode.MotionMagic, ThrowerConstants.throwConeLowPosition);
+    primaryMotor.set(ControlMode.Velocity, 380);
+  }
+
+  public void setThrowCubeHighPosition() {
+    configureThrowConeHigh();
+    primaryMotor.set(ControlMode.MotionMagic, ThrowerConstants.throwCubeHighPosition);
+  }
+
+  public void setThrowCubeLowPosition() {
+    configureThrowConeHigh();
+    primaryMotor.set(ControlMode.MotionMagic, ThrowerConstants.throwCubeLowPosition);
   }
 
   public void setThrowConePurgePosition() {
-    configureMovement();
+    configureThrowConeLow();
     primaryMotor.set(ControlMode.MotionMagic, ThrowerConstants.purgePosition);
   }
 
@@ -109,6 +139,9 @@ public class ThrowerSubsystem extends SubsystemBase {
    }
   public void manualSpeed(double speed) {
     primaryMotor.set(ControlMode.PercentOutput, speed);
+  }
+  public boolean inRange() {
+    return Math.abs(primaryMotor.getSelectedSensorPosition()) > 450;
   }
 
   //Configures motor's pid and motion magic to be more stable for travel
@@ -129,7 +162,7 @@ public class ThrowerSubsystem extends SubsystemBase {
   }
 
   public void configureThrowConeLow() {
-    primaryMotor.selectProfileSlot(0, 0);
+    primaryMotor.selectProfileSlot(2, 0);
     primaryMotor.configMotionAcceleration(ThrowerConstants.throwConeLowAcceleration);
     primaryMotor.configMotionCruiseVelocity(ThrowerConstants.throwConeLowCruiseVelocity);
     primaryMotor.configMotionSCurveStrength(ThrowerConstants.throwProfileSmoothing);
@@ -147,6 +180,11 @@ public class ThrowerSubsystem extends SubsystemBase {
     primaryMotor.config_kI(1, ThrowerConstants.travelkI);
     primaryMotor.config_kD(1, ThrowerConstants.travelkD);
     primaryMotor.config_kF(1, ThrowerConstants.travelkF);
+    //slot 2
+    primaryMotor.config_kP(2, ThrowerConstants.throwVkP);
+    primaryMotor.config_kI(2, ThrowerConstants.throwVkI);
+    primaryMotor.config_kD(2, ThrowerConstants.throwVkD);
+    primaryMotor.config_kF(2, ThrowerConstants.throwVkF);
     
 
   }

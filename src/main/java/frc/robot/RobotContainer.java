@@ -26,7 +26,9 @@ import frc.robot.routines.PurgeRoutine;
 import frc.robot.routines.ShootAutoPeriodRoutine;
 import frc.robot.autos.BackwardsRoutine;
 import frc.robot.autos.DriveToPose;
+import frc.robot.autos.ThrowBalanceAuto;
 import frc.robot.subsystems.HallwaySubsystem;
+import frc.robot.subsystems.HomePitmanArms;
 import frc.robot.subsystems.ThrowerSubsystem;
 import frc.robot.utils.GamePiece;
 import frc.robot.utils.Position;
@@ -35,6 +37,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.AddressableLED;
+import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -47,6 +52,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -80,10 +86,10 @@ public class RobotContainer {
   private final int rotationAxis = XboxController.Axis.kRightX.value;
   //private final JoystickButton zeroGyro = new JoystickButton(primaryController.getHID(), XboxController.Button.kY.value);
   private final JoystickButton robotCentric = new JoystickButton(primaryController.getHID(), XboxController.Button.kRightBumper.value);
-  
+
   //auto chooser
-  private final Command m_simpleAuto = new ShootAutoPeriodRoutine(throwerSubsystem, hallwaySubsystem, driveSubsystem);
-  private final Command m_complexAuto = new SequentialCommandGroup(new ShootAutoPeriodRoutine(throwerSubsystem, hallwaySubsystem, driveSubsystem), new BackwardsRoutine(driveSubsystem).withTimeout(3));
+  private final Command m_simpleAuto = new SequentialCommandGroup(new ResetGyroCommand(driveSubsystem).withTimeout(0.01), new ResetEncoderCommand(throwerSubsystem).withTimeout(0.01), new HomePitmanArms(hallwaySubsystem).withTimeout(1.5), new InstantCommand(() -> {hallwaySubsystem.armsOut();}));
+  private final Command m_complexAuto = new SequentialCommandGroup(new ResetGyroCommand(driveSubsystem).withTimeout(0.01), new ResetEncoderCommand(throwerSubsystem).withTimeout(0.01), new HomePitmanArms(hallwaySubsystem).withTimeout(1.5), new InstantCommand(() -> {hallwaySubsystem.armsOut();}), new ThrowCommand(throwerSubsystem, Position.THROW_CUBE_HIGH).withTimeout(2.5), new WaitCommand(1), new ThrowBalanceAuto(driveSubsystem, throwerSubsystem));
   SendableChooser<Command> m_chooser = new SendableChooser<>();
   public RobotContainer() {
     m_chooser.setDefaultOption("Simple Auto", m_simpleAuto);
@@ -93,37 +99,51 @@ public class RobotContainer {
     driveSubsystem.setDefaultCommand(
             new DriveCommand(
                 driveSubsystem, 
-                () -> primaryController.getRawAxis(translationAxis)*0.85, 
-                () -> primaryController.getRawAxis(strafeAxis)*0.85, 
-                () -> -primaryController.getRawAxis(rotationAxis)*0.85, 
+                () -> primaryController.getRawAxis(translationAxis)*0.75, 
+                () -> primaryController.getRawAxis(strafeAxis)*0.75, 
+                () -> -primaryController.getRawAxis(rotationAxis)*0.75, 
                 () -> robotCentric.getAsBoolean()
             )
         );
     primaryController.rightBumper().whileTrue(new DriveCommand(
       driveSubsystem, 
-      () -> -primaryController.getRawAxis(translationAxis)*0.3, 
+      () -> -primaryController.getRawAxis(translationAxis)*0.3,  
       () -> -primaryController.getRawAxis(strafeAxis)*0.3,
-      () -> -primaryController.getRawAxis(rotationAxis)*0.3, 
+      () -> -primaryController.getRawAxis(rotationAxis)*0.2, 
       () -> robotCentric.getAsBoolean()
   ));
 
+    primaryController.leftBumper().whileTrue(new DriveCommand(
+        driveSubsystem, 
+        () -> -primaryController.getRawAxis(translationAxis), 
+        () -> -primaryController.getRawAxis(strafeAxis),
+        () -> -primaryController.getRawAxis(rotationAxis), 
+        () -> false
+    ));
+    //throwerSubsystem.setDefaultCommand(new HomingCommand(throwerSubsystem));
     //primaryController.b().whileTrue(new EBrakeCommand(driveSubsystem));
   //shoot right trig, robot right bump, homing kailey left trigger
     primaryController.x().whileTrue(new LimelightCenterCommand(driveSubsystem));
     primaryController.y().whileTrue(new SquareCommand(driveSubsystem, 0));
-    primaryController.povLeft().whileTrue(new SquareCommand(driveSubsystem, -90));
-    primaryController.povUp().whileTrue(new ThrowCommand(throwerSubsystem, Position.THROW_CONE_HIGH));
-    primaryController.povDown().whileTrue(new ThrowCommand(throwerSubsystem, Position.THROW_CONE_LOW));
-    primaryController.povRight().whileTrue(new SquareCommand(driveSubsystem, 90));
+    //primaryController.povLeft().whileTrue(new SquareCommand(driveSubsystem, -90));
 
-    secondaryController.rightTrigger(0.1).onTrue(new ArmsInCommand(hallwaySubsystem).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
-    secondaryController.leftTrigger(0.1).onTrue(new ArmsOutCommand(hallwaySubsystem).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
-    secondaryController.rightBumper().whileTrue(new HomingCommand(throwerSubsystem));
+    secondaryController.leftTrigger(0.1).and(hallwaySubsystem::cubeMode).whileTrue(new SequentialCommandGroup(new InstantCommand(() -> {hallwaySubsystem.setArmState(false);}), new WaitCommand(0.2), new ThrowCommand(throwerSubsystem, Position.THROW_CUBE_HIGH)));
+    secondaryController.rightTrigger(0.1).and(hallwaySubsystem::cubeMode).whileTrue(new SequentialCommandGroup(new InstantCommand(() -> {hallwaySubsystem.setArmState(false);}), new WaitCommand(0.2), new ThrowCommand(throwerSubsystem, Position.THROW_CUBE_LOW)));
+    
+    secondaryController.leftTrigger(0.1).and(hallwaySubsystem::coneMode).whileTrue(new SequentialCommandGroup(new InstantCommand(() -> {hallwaySubsystem.setArmState(false);}), new WaitCommand(0.2), new ThrowCommand(throwerSubsystem, Position.THROW_CONE_HIGH)));
+    secondaryController.rightTrigger(0.1).and(hallwaySubsystem::coneMode).whileTrue(new SequentialCommandGroup(new InstantCommand(() -> {hallwaySubsystem.setArmState(false);}), new WaitCommand(0.2), new ThrowCommand(throwerSubsystem, Position.THROW_CONE_LOW)));
+    
+    secondaryController.y().whileTrue(new SequentialCommandGroup(new InstantCommand(() -> {hallwaySubsystem.setArmState(false);}), new WaitCommand(0.2), new ThrowCommand(throwerSubsystem, Position.PURGE)));
+    
+    //primaryController.povDown().whileTrue(new SequentialCommandGroup(new InstantCommand(() -> {hallwaySubsystem.setArmState(false);}), new WaitCommand(0.7), new ThrowCommand(throwerSubsystem, Position.THROW_CONE_LOW)));
+    //primaryController.povDown().whileTrue(new ThrowCommand(throwerSubsystem, Position.THROW_CONE_LOW));
+    secondaryController.rightBumper().onTrue(new InstantCommand(() -> {hallwaySubsystem.setArmState(!hallwaySubsystem.isArmsEngaged());}));
+
     //secondaryController.leftBumper().whileTrue(new IntakeStageOneCommand(throwerSubsystem, hallwaySubsystem).alongWith( new IntakeCommand(hallwaySubsystem, GamePiece.CONE)));
     //secondaryController.x().whileTrue(new IntakeStageOneCommand(throwerSubsystem, hallwaySubsystem).alongWith( new IntakeCommand(hallwaySubsystem, GamePiece.CUBE)));
     //secondaryController.rightBumper().whileTrue(new IntakeStageTwoRoutine(throwerSubsystem, hallwaySubsystem));
     //secondaryController.b().whileTrue(new ArmsOutCommand(hallwaySubsystem));
-    //secondaryController.a().whileTrue(new ArmsInCommand(hallwaySubsystem));
+    secondaryController.a().onTrue(new InstantCommand(() -> {hallwaySubsystem.setCubeMode(!hallwaySubsystem.cubeMode());}));
 
     //secondaryController.x().whileTrue(new IntakeCommand(hallwaySubsystem, GamePiece.CUBE));
     //secondaryController.y().whileTrue(new IntakeCommand(hallwaySubsystem, GamePiece.NONE));
@@ -137,13 +157,18 @@ public class RobotContainer {
     //primaryController.b().onTrue(new DriveToPose(new Pose2d(new Translation2d(2.03, 6.40), new Rotation2d(Units.degreesToRadians(180))), driveSubsystem));
     //primaryController.b().whileTrue(new JoyControlCommand(primaryController, hallwaySubsystem).repeatedly());
 
+    Trigger armsEngagedTrigger = new Trigger(hallwaySubsystem::isArmsEngaged);
+    armsEngagedTrigger.whileFalse(new ArmsOutCommand(hallwaySubsystem));
+    armsEngagedTrigger.whileTrue(new ArmsInCommand(hallwaySubsystem));
+    
     SmartDashboard.putData("SendAlliance", new InstantCommand(() -> driveSubsystem.setAlliance(DriverStation.getAlliance())).ignoringDisable(true));
     
     //Manual Controls 
-    SmartDashboard.putData(new ThrowCommand(throwerSubsystem, Position.THROW_CONE_HIGH));
+    SmartDashboard.putData(new ThrowCommand(throwerSubsystem, Position.THROW_CONE_LOW));
     SmartDashboard.putData(new LowerCommand(throwerSubsystem));
     SmartDashboard.putData(new PreThrowCommand(throwerSubsystem));
     SmartDashboard.putData(new ResetEncoderCommand(throwerSubsystem));
+    SmartDashboard.putData(new HomePitmanArms(hallwaySubsystem));
 
     SmartDashboard.putData(new ArmsOutCommand(hallwaySubsystem));
     SmartDashboard.putData(new ArmsInCommand(hallwaySubsystem));
@@ -160,6 +185,7 @@ public class RobotContainer {
     SmartDashboard.putData(new PurgeRoutine(hallwaySubsystem, throwerSubsystem));
     SmartDashboard.putData(new ShootAutoPeriodRoutine(throwerSubsystem, hallwaySubsystem, driveSubsystem));
     SmartDashboard.putData(new BackwardsRoutine(driveSubsystem));
+    SmartDashboard.putData("Endcoder reset", new InstantCommand(() -> {throwerSubsystem.resetEncoders();}));
     SmartDashboard.putData(driveSubsystem);
     SmartDashboard.putData(hallwaySubsystem);
     SmartDashboard.putData(throwerSubsystem);
@@ -192,12 +218,13 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+    //return new SequentialCommandGroup(new ResetGyroCommand(driveSubsystem).withTimeout(0.01), new ResetEncoderCommand(throwerSubsystem).withTimeout(0.01), new HomePitmanArms(hallwaySubsystem).withTimeout(1.5), new InstantCommand(() -> {hallwaySubsystem.armsOut();}));
     // returns command to run in auto period
-    return null;
+    //return null;
     //return new ShootAutoPeriodRoutine(throwerSubsystem, hallwaySubsystem, driveSubsystem);
     //return new ResetGyroCommand(driveSubsystem);
     //return new exampleAuto(driveSubsystem);
-    //return m_chooser.getSelected();
+    return m_chooser.getSelected();
     //return new SequentialCommandGroup(new ResetGyroCommand(driveSubsystem).withTimeout(0.01), new ParallelRaceGroup(new IntakeCommand(hallwaySubsystem, GamePiece.NONE), new SequentialCommandGroup(new PreThrowCommand(throwerSubsystem).withTimeout(1), new HomingCommand(throwerSubsystem))) );
   }
 }
