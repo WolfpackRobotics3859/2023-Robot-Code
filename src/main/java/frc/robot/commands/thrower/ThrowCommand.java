@@ -56,6 +56,6 @@ public class ThrowCommand extends CommandBase {
   @Override
   public boolean isFinished() {
     //return throwerSubsystem.motionProfileFinished();
-    return false;
+    return throwerSubsystem.inRange();
   }
 }
