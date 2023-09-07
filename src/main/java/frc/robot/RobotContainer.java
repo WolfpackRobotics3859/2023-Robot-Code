@@ -135,11 +135,11 @@ public class RobotContainer {
         () -> -primaryController.getRawAxis(rotationAxis), 
         () -> false
     ));
-    throwerSubsystem.setDefaultCommand(new HomingCommand(throwerSubsystem));
+    //throwerSubsystem.setDefaultCommand(new HomingCommand(throwerSubsystem));
     //primaryController.b().whileTrue(new EBrakeCommand(driveSubsystem));
   //shoot right trig, robot right bump, homing kailey left trigger
-    primaryController.x().whileTrue(new LimelightCenterCommand(driveSubsystem));
-    primaryController.y().whileTrue(new SquareCommand(driveSubsystem, 0));
+    //primaryController.x().whileTrue(new LimelightCenterCommand(driveSubsystem));
+    //primaryController.y().whileTrue(new SquareCommand(driveSubsystem, 0));
     //primaryController.povLeft().whileTrue(new SquareCommand(driveSubsystem, -90));
 
     secondaryController.leftTrigger(0.1).and(hallwaySubsystem::cubeMode).whileTrue(new SequentialCommandGroup(new InstantCommand(() -> {hallwaySubsystem.setArmState(false);}), new WaitCommand(0.2), new ThrowCommand(throwerSubsystem, Position.THROW_CUBE_HIGH)));
@@ -164,6 +164,7 @@ public class RobotContainer {
     //secondaryController.y().whileTrue(new IntakeCommand(hallwaySubsystem, GamePiece.NONE));
 
     primaryController.a().whileTrue(new ResetGyroCommand(driveSubsystem));
+    primaryController.x().whileTrue(new ThrowCommand(throwerSubsystem, Position.THROW_CONE_LOW));
     //primaryController.y().onTrue(new ResetEncoderCommand(throwerSubsystem));
     secondaryController.leftBumper().whileTrue(new IntakeCommand(hallwaySubsystem, throwerSubsystem, null));
     //primaryController.rightTrigger().onTrue(new AutoShootRoutine(null, Position.THROW_CONE_HIGH, driveSubsystem, hallwaySubsystem, throwerSubsystem));

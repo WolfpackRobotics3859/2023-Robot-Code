@@ -36,7 +36,9 @@ public class ThrowCommand extends CommandBase {
     }
     if(position.equals(Position.PURGE)) {
       throwerSubsystem.setThrowConePurgePosition();
-    }
+    } 
+  
+    
     
     
   }
@@ -56,6 +58,6 @@ public class ThrowCommand extends CommandBase {
   @Override
   public boolean isFinished() {
     //return throwerSubsystem.motionProfileFinished();
-    return throwerSubsystem.inRange();
+    return false;
   }
 }
