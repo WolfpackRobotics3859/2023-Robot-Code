@@ -7,6 +7,7 @@ package frc.robot;
 
 import frc.robot.commands.auto.DriveBackCommand;
 import frc.robot.commands.drive.DriveCommand;
+import frc.robot.commands.drive.DriveCornerCommand;
 import frc.robot.commands.drive.EBrakeCommand;
 import frc.robot.commands.drive.LimelightCenterCommand;
 import frc.robot.commands.drive.ResetGyroCommand;
@@ -32,6 +33,7 @@ import frc.robot.subsystems.HallwaySubsystem;
 import frc.robot.subsystems.HomePitmanArms;
 import frc.robot.subsystems.ThrowerSubsystem;
 import frc.robot.utils.GamePiece;
+import frc.robot.utils.ModulePosition;
 import frc.robot.utils.Position;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -98,6 +100,7 @@ public class RobotContainer {
   private final Command shootAndDriveBackDump = new SequentialCommandGroup(new ResetGyroCommand(driveSubsystem).withTimeout(0.01), new ResetEncoderCommand(throwerSubsystem).withTimeout(0.01), new HomePitmanArms(hallwaySubsystem).withTimeout(1.5), new InstantCommand(() -> {hallwaySubsystem.armsOut();}), new ThrowCommand(throwerSubsystem, Position.PURGE).withTimeout(2.5), new WaitCommand(1), new DriveBackCommand(driveSubsystem, true).withTimeout(3.5));
   private final Command onlyShootDump = new SequentialCommandGroup(new ResetGyroCommand(driveSubsystem).withTimeout(0.01), new ResetEncoderCommand(throwerSubsystem).withTimeout(0.01), new HomePitmanArms(hallwaySubsystem).withTimeout(1.5), new InstantCommand(() -> {hallwaySubsystem.armsOut();}), new ThrowCommand(throwerSubsystem, Position.PURGE).withTimeout(2.5));
   
+  SendableChooser<Double> speedChooser = new SendableChooser<>();
 
   SendableChooser<Command> m_chooser = new SendableChooser<>();
   public RobotContainer() {
@@ -110,31 +113,94 @@ public class RobotContainer {
     m_chooser.addOption("shoot + drive back dump", shootAndDriveBackDump);
     m_chooser.addOption("only shoot dump", onlyShootDump);
     SmartDashboard.putData(m_chooser);
+
+    //this is probably bad
+    speedChooser.addOption("30%", 0.3);
+    speedChooser.addOption("40%", 0.4);
+    speedChooser.addOption("50%", 0.5);
+    speedChooser.addOption("60%", 0.6);
+    speedChooser.setDefaultOption("70%", 0.7);
+    speedChooser.addOption("80%", 0.8);
+    speedChooser.addOption("90%", 0.9);
+    speedChooser.addOption("Max", 1.0);
+
     // Set default commands for subsystems
     driveSubsystem.setDefaultCommand(
             new DriveCommand(
                 driveSubsystem, 
-                () -> primaryController.getRawAxis(translationAxis)*0.75, 
-                () -> primaryController.getRawAxis(strafeAxis)*0.75, 
-                () -> -primaryController.getRawAxis(rotationAxis)*0.75, 
+                () -> primaryController.getRawAxis(translationAxis)*speedChooser.getSelected(), 
+                () -> primaryController.getRawAxis(strafeAxis)*speedChooser.getSelected(), 
+                () -> -primaryController.getRawAxis(rotationAxis)*speedChooser.getSelected(), 
                 () -> robotCentric.getAsBoolean()
             )
         );
-    primaryController.rightBumper().whileTrue(new DriveCommand(
+    //note to self, rebound from right bumper to left stick
+    primaryController.leftStick().whileTrue(new DriveCommand(
       driveSubsystem, 
       () -> -primaryController.getRawAxis(translationAxis)*0.3,  
       () -> -primaryController.getRawAxis(strafeAxis)*0.3,
       () -> -primaryController.getRawAxis(rotationAxis)*0.2, 
       () -> robotCentric.getAsBoolean()
   ));
-
-    primaryController.leftBumper().whileTrue(new DriveCommand(
+     //note to self, rebound from left bumper to left stick
+    primaryController.rightStick().whileTrue(new DriveCommand(
         driveSubsystem, 
         () -> primaryController.getRawAxis(translationAxis), 
         () -> primaryController.getRawAxis(strafeAxis),
         () -> -primaryController.getRawAxis(rotationAxis), 
         () -> false
     ));
+
+    //center of rotation (COR) swapping
+    //leaving this disabled for now
+    boolean advancedSwerveControls = false;
+    if(advancedSwerveControls) {
+      //front left
+      primaryController.leftTrigger(0.1).whileTrue(new DriveCornerCommand(
+        driveSubsystem, 
+        () -> primaryController.getRawAxis(translationAxis), 
+        () -> primaryController.getRawAxis(strafeAxis),
+        () -> -primaryController.getRawAxis(rotationAxis), 
+        () -> false,
+        ModulePosition.FRONT_LEFT
+        )
+      );
+
+      //front right
+      primaryController.rightTrigger(0.1).whileTrue(new DriveCornerCommand(
+        driveSubsystem, 
+        () -> primaryController.getRawAxis(translationAxis), 
+        () -> primaryController.getRawAxis(strafeAxis),
+        () -> -primaryController.getRawAxis(rotationAxis), 
+        () -> false,
+        ModulePosition.FRONT_RIGHT
+        )
+      );
+
+      //back left
+      primaryController.leftBumper().whileTrue(new DriveCornerCommand(
+        driveSubsystem, 
+        () -> primaryController.getRawAxis(translationAxis), 
+        () -> primaryController.getRawAxis(strafeAxis),
+        () -> -primaryController.getRawAxis(rotationAxis), 
+        () -> false,
+        ModulePosition.BACK_LEFT
+        )
+      );
+
+      //back right
+      primaryController.rightBumper().whileTrue(new DriveCornerCommand(
+        driveSubsystem, 
+        () -> primaryController.getRawAxis(translationAxis), 
+        () -> primaryController.getRawAxis(strafeAxis),
+        () -> -primaryController.getRawAxis(rotationAxis), 
+        () -> false,
+        ModulePosition.BACK_RIGHT
+        )
+      );
+
+    }
+    
     throwerSubsystem.setDefaultCommand(new HomingCommand(throwerSubsystem));
     //primaryController.b().whileTrue(new EBrakeCommand(driveSubsystem));
   //shoot right trig, robot right bump, homing kailey left trigger

@@ -78,7 +78,7 @@ public class DriveSubsystem extends SubsystemBase {
                                     translation.getY(), 
                                     rotation)
                                 );
-    
+
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.SwerveConstants.maxSpeed);
 
         for(SwerveModule mod : mSwerveMods){
@@ -87,6 +87,33 @@ public class DriveSubsystem extends SubsystemBase {
       SmartDashboard.putNumber("Module " + mod.moduleNumber + " Angle Setpoint: ", swerveModuleStates[mod.moduleNumber].angle.getDegrees());
         }
     }    
+
+    public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop, Translation2d rotationPoint) {
+      SwerveModuleState[] swerveModuleStates =
+          Constants.SwerveConstants.swerveKinematics.toSwerveModuleStates(
+              fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(
+                                  translation.getX(), 
+                                  translation.getY(), 
+                                  rotation, 
+                                  getYaw()
+                              )
+                              : new ChassisSpeeds(
+                                  translation.getX(), 
+                                  translation.getY(), 
+                                  rotation),
+                                  rotationPoint
+                              );
+
+      SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.SwerveConstants.maxSpeed);
+
+      for(SwerveModule mod : mSwerveMods){
+          mod.setDesiredState(swerveModuleStates[mod.moduleNumber], isOpenLoop);
+          SmartDashboard.putNumber("Module " + mod.moduleNumber + " Speed Setpoint: ", swerveModuleStates[mod.moduleNumber].speedMetersPerSecond);
+    SmartDashboard.putNumber("Module " + mod.moduleNumber + " Angle Setpoint: ", swerveModuleStates[mod.moduleNumber].angle.getDegrees());
+      }
+  }  
+
+
 
     public void driveCircle(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
        //TODO
