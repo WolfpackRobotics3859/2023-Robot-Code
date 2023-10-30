@@ -34,7 +34,7 @@ public class HomePitmanArms extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     hallwaySubsystem.rest();
-    hallwaySubsystem.zero();
+    //hallwaySubsystem.zero();
   }
 
   // Returns true when the command should end.

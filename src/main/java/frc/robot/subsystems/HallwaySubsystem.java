@@ -20,7 +20,6 @@ import frc.robot.Constants;
 public class HallwaySubsystem extends SubsystemBase {
   private WPI_TalonFX kennyFlipperLeft = new WPI_TalonFX(20);
   private WPI_TalonFX kennyFlipperRight = new WPI_TalonFX(21);
-  private WPI_TalonFX chrisCrossLeft = new WPI_TalonFX(22);
   private WPI_TalonFX chrisCrossRight = new WPI_TalonFX(20);
   private DigitalInput limitSwitch;
   private boolean cubeMode = false;
@@ -38,36 +37,23 @@ public class HallwaySubsystem extends SubsystemBase {
     limitSwitch = new DigitalInput(9);
     kennyFlipperLeft.configFactoryDefault();
     kennyFlipperRight.configFactoryDefault();
-    chrisCrossLeft.configFactoryDefault();
     chrisCrossRight.configFactoryDefault();
 
     kennyFlipperLeft.setNeutralMode(NeutralMode.Coast);
     kennyFlipperRight.setNeutralMode(NeutralMode.Coast);
-    chrisCrossLeft.setNeutralMode(NeutralMode.Brake);
     chrisCrossRight.setNeutralMode(NeutralMode.Brake);
-
-    chrisCrossLeft.setSelectedSensorPosition(0);
     chrisCrossRight.setSelectedSensorPosition(0);
-
-    chrisCrossLeft.configMotionCruiseVelocity(16000, Constants.kTimeoutMs);
-    chrisCrossLeft.configMotionAcceleration(16000, Constants.kTimeoutMs);
-    chrisCrossLeft.configMotionSCurveStrength(2, Constants.kTimeoutMs);
 
     chrisCrossRight.configMotionCruiseVelocity(14000, Constants.kTimeoutMs);
     chrisCrossRight.configMotionAcceleration(14000, Constants.kTimeoutMs);
     chrisCrossRight.configMotionSCurveStrength(2, Constants.kTimeoutMs);
 
-    chrisCrossLeft.config_kP(0, 1);
     chrisCrossRight.config_kP(0, 1);
-
-    chrisCrossLeft.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, Constants.kTimeoutMs);
-		chrisCrossLeft.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, Constants.kTimeoutMs);
     chrisCrossRight.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, Constants.kTimeoutMs);
 		chrisCrossRight.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, Constants.kTimeoutMs);
 
     kennyFlipperLeft.setInverted(false);
     kennyFlipperRight.setInverted(true);
-    chrisCrossLeft.setInverted(false);
     chrisCrossRight.setInverted(true);
 
     kennyFlipperRight.follow(kennyFlipperLeft);
@@ -78,12 +64,14 @@ public class HallwaySubsystem extends SubsystemBase {
     cameraChoose.addOption("Manual Flip", false);
   }
   public void armsOut() {
-    chrisCrossRight.set(ControlMode.MotionMagic, 2500);
+    chrisCrossRight.set(ControlMode.MotionMagic, 0); //to be tested
+    //chrisCrossRight.set(ControlMode.PercentOutput, 0.15); //club rush changed (above comment)
+
     armsEngaged = false;
   }
 
   public void armsIn() {
-    chrisCrossRight.set(ControlMode.PercentOutput, -0.15);
+    chrisCrossRight.set(ControlMode.PercentOutput, -0.15); //club rush changed from -0.15 
     armsEngaged = true;
   }
 
@@ -121,7 +109,6 @@ public class HallwaySubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    SmartDashboard.putNumber("Chris Cross Encoder (left)", chrisCrossLeft.getSelectedSensorPosition());
     SmartDashboard.putNumber("Chris Cross Encoder (right)", chrisCrossRight.getSelectedSensorPosition());
     SmartDashboard.putBoolean("switrch", limitSwitch());
     SmartDashboard.putBoolean("Cube Mode", cubeMode);
