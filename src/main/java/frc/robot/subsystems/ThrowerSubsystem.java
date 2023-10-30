@@ -29,13 +29,13 @@ public class ThrowerSubsystem extends SubsystemBase {
   public ThrowerSubsystem() {
     throwerEncoder = new CANCoder(5);
     throwerEncoder.configFactoryDefault();
-    primaryMotor = new WPI_TalonFX(11);
-    secondaryMotor = new WPI_TalonFX(12);
-    secondaryMotor.configFactoryDefault();
-    secondaryMotor.setInverted(true);
-    secondaryMotor.follow(primaryMotor);
+    primaryMotor = new WPI_TalonFX(12);
+    //secondaryMotor = new WPI_TalonFX(11); //remember you swapped these please
+    //secondaryMotor.configFactoryDefault();
+    //secondaryMotor.setInverted(false);
+    //secondaryMotor.follow(primaryMotor);
     primaryMotor.configFactoryDefault();
-    primaryMotor.setInverted(false);
+    primaryMotor.setInverted(true);
     primaryMotor.configVoltageCompSaturation(10, Constants.kTimeoutMs);
     primaryMotor.enableVoltageCompensation(true);
 		primaryMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, Constants.kTimeoutMs); //changed to 10... 11:48 3/31
@@ -45,7 +45,7 @@ public class ThrowerSubsystem extends SubsystemBase {
 		primaryMotor.setSelectedSensorPosition(0, 0, Constants.kTimeoutMs);
     primaryMotor.configRemoteFeedbackFilter(throwerEncoder, 0);
     primaryMotor.configSelectedFeedbackSensor(FeedbackDevice.RemoteSensor0);
-    primaryMotor.setSensorPhase(true);
+    primaryMotor.setSensorPhase(false);
     throwerEncoder.setPosition(0);
     primaryMotor.configNeutralDeadband(0.01);
     resetEncoders();
@@ -121,7 +121,7 @@ public class ThrowerSubsystem extends SubsystemBase {
     primaryMotor.configMotionAcceleration(ThrowerConstants.throwCubeLowAcceleration);
     primaryMotor.configMotionCruiseVelocity(ThrowerConstants.throwCubeLowCruiseVelocity);
     primaryMotor.configMotionSCurveStrength(4);
-    primaryMotor.set(ControlMode.MotionMagic, ThrowerConstants.throwCubeLowPosition);
+    primaryMotor.set(ControlMode.MotionMagic, 430);
   }
 
   public void setThrowConePurgePosition() {

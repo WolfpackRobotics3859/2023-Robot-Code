@@ -117,7 +117,7 @@ public final class Constants {
         public static final int driveMotorID = 1;
         public static final int angleMotorID = 2;
         public static final int canCoderID = 1;
-        public static final Rotation2d angleOffset = Rotation2d.fromDegrees(55.3);
+        public static final Rotation2d angleOffset = Rotation2d.fromDegrees(4.833);//183.3
         public static final SwerveModuleConstants constants = 
             new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
     }
@@ -127,27 +127,27 @@ public final class Constants {
         public static final int driveMotorID = 3;
         public static final int angleMotorID = 4;
         public static final int canCoderID = 2;
-        public static final Rotation2d angleOffset = Rotation2d.fromDegrees(230.6);
+        public static final Rotation2d angleOffset = Rotation2d.fromDegrees(332.1);//151.6
         public static final SwerveModuleConstants constants = 
             new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
     }
     
     /* Back Left Module - Module 2 */
-    public static final class Mod2 { //TODO: This must be tuned to specific robot
+    public static final class Mod2 { 
         public static final int driveMotorID = 5;
         public static final int angleMotorID = 6;
         public static final int canCoderID = 3;
-        public static final Rotation2d angleOffset = Rotation2d.fromDegrees(316.6);
+        public static final Rotation2d angleOffset = Rotation2d.fromDegrees(316.9); //137.5
         public static final SwerveModuleConstants constants = 
             new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
     }
 
     /* Back Right Module - Module 3 */
-    public static final class Mod3 { //TODO: This must be tuned to specific robot
+    public static final class Mod3 {
         public static final int driveMotorID = 7;
         public static final int angleMotorID = 8;
         public static final int canCoderID = 4;
-        public static final Rotation2d angleOffset = Rotation2d.fromDegrees(92.8);
+        public static final Rotation2d angleOffset = Rotation2d.fromDegrees(116.8);//301.1
         public static final SwerveModuleConstants constants = 
             new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
     }
@@ -166,28 +166,28 @@ public final class Constants {
     public static int travelProfileSmoothing = 2;
 
     public static int throwConeHighCruiseVelocity = 1200; //cube shenanoigabs
-    public static int throwConeHighAcceleration = 2350;
+    public static int throwConeHighAcceleration = 1900;
     public static int throwProfileSmoothing = 2;
 
-    public static int throwConeLowCruiseVelocity = 400; //DO NOT CHANGE FOR THE LOVE OF GOD
-    public static int throwConeLowAcceleration = 2050; 
+    public static int throwConeLowCruiseVelocity = 600; //DO NOT CHANGE FOR THE LOVE OF GOD
+    public static int throwConeLowAcceleration = 4500; //6000 9/6
 
-    public static int throwCubeLowCruiseVelocity = 520; //old 4/1 11:35 420 and 1100
-    public static int throwCubeLowAcceleration = 1100; 
+    public static int throwCubeLowCruiseVelocity = 520; //old 4/1 11:35 420 and 1100//
+    public static int throwCubeLowAcceleration = 1100;  //test this too
     
     public static int throwCubeHighCruiseVelocity = 1200; 
-    public static int throwCubeHighAcceleration = 2350; 
+    public static int throwCubeHighAcceleration = 1200; //TODO: test this tommmorow please :)
 
     //motion profile tolerance - how close the motor has to be to the target position to be considered "done" (measured in encoder ticks)
     public static int motionProfileTolerance = 15;
 
     //pid values
-    public static double travelkP = 1.8; //1.2
+    public static double travelkP = 1; //1.2
     public static int travelkI = 0;
     public static int travelkD = 0;
     public static double travelkF = 0;
 
-    public static double throwkP = 1.8; //0.2
+    public static double throwkP = 1.5; //0.2
     public static int throwkI = 0;
     public static int throwkD = 0;
     public static double throwkF = 0; //0.2
@@ -196,8 +196,8 @@ public final class Constants {
     public static int loadPosition = 785;
     public static int preShootPosition = 900;
     public static int purgePosition = 200;
-    public static int throwConeHighPosition = 900; //7500
-    public static int throwConeLowPosition = 900; //3900
+    public static int throwConeHighPosition = 450; //7500
+    public static int throwConeLowPosition = 800; //3900
 
     public static int throwCubeHighPosition = 950; //7500
     public static int throwCubeLowPosition = 820;
